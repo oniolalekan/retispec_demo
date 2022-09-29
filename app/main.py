@@ -25,3 +25,23 @@ def get_patients(db: Session = Depends(get_db)):
     patients = db.query(models.Patient).all()
     return {"data": patients}
 
+@app.post("/patients", status_code=status.HTTP_201_CREATED)
+def create_patients(patient: Patient, db: Session = Depends(get_db)):
+    patient.birth_date = datetime.strptime(patient.birth_date, '%m-%d-%Y').date()
+    new_patient = models.Patient(**patient.dict())
+    db.add(new_patient)
+    db.commit()
+    db.refresh(new_patient)
+
+    return {"data": new_patient}
+
+
+@app.get("/patients/{id}")
+def get_patient(id: int, db: Session = Depends(get_db)):
+
+    patient = db.query(models.Patient).filter(models.Patient.id == id).first()
+
+    if not patient:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"patient with the id: {id} was not found")
+
+    return {"patient_detail": patient}
