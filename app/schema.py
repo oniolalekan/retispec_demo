@@ -1,4 +1,5 @@
-from pydantic import BaseModel, FileUrl
+from pydantic import BaseModel
+from typing import List
 
 #Pydantic model: Patient: defines the structure of the request and response.
 #a form of validation to ensure all the fields are completed.
@@ -23,6 +24,7 @@ class Acquisition(BaseModel):
     date_taken: str
     operator_name: str
     image_data: str
+    patient_id: int
 
     class Config:
         orm_mode = True
@@ -33,6 +35,7 @@ class Allacquisition(BaseModel):
     site_name:str
     date_taken: str
     operator_name: str
+    patient_id: int
 
     class Config:
         orm_mode = True

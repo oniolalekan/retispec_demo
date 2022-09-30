@@ -1,7 +1,8 @@
-from sqlalchemy import DATE, Column, Integer, String
+from sqlalchemy import DATE, Column, ForeignKey, Integer, String
 #from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -17,6 +18,7 @@ class Patient(Base):
     sex = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text('now()'))
+    acquisition = relationship("Acquisition", back_populates="patient")
 
 
 class Acquisition(Base):
@@ -30,3 +32,5 @@ class Acquisition(Base):
     image_data = Column(String, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text('now()'))
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
+    patient = relationship("Patient", back_populates="acquisition")

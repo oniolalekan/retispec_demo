@@ -8,13 +8,17 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/acquisitions",
+    tags= ['Acquisitions']
+
+)
 
 router.mount("/static", StaticFiles(directory="static"), name="static")
 
 #Create a new acquisition
-@router.post("/acquisitions", status_code=status.HTTP_201_CREATED, response_model=schema.Acquisition)
-async def create_acquisition(file: UploadFile = File(), eye: str = Form(), site_name: str = Form(), date_taken: str = Form(), operator_name: str = Form(), db: Session = Depends(get_db)):
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema.Acquisition)
+async def create_acquisition(file: UploadFile = File(), eye: str = Form(), site_name: str = Form(), date_taken: str = Form(), operator_name: str = Form(), patient_id: int = Form(), db: Session = Depends(get_db)):
     
     FILEPATH = "./static/images/"
     filename = file.filename
@@ -36,7 +40,7 @@ async def create_acquisition(file: UploadFile = File(), eye: str = Form(), site_
     img = img.resize(size = (200, 200))
     img.save(generated_name)
 
-    new_acquisition = models.Acquisition(eye=eye, site_name=site_name, date_taken=date_taken, operator_name= operator_name, image_data = token_name)
+    new_acquisition = models.Acquisition(eye=eye, site_name=site_name, date_taken=date_taken, operator_name= operator_name, image_data = token_name, patient_id = patient_id)
     db.add(new_acquisition)
     db.commit()
     db.refresh(new_acquisition)
@@ -44,14 +48,14 @@ async def create_acquisition(file: UploadFile = File(), eye: str = Form(), site_
     return new_acquisition
 
 
-#get all acquisitions
-@router.get("/acquisitions", response_model=List[schema.Allacquisition])
-def get_acquisitions(db: Session = Depends(get_db)):
-    acquisitions = db.query(models.Acquisition).all()
+#List all patient acquisitions (by patient id) 
+@router.get("/{id}", response_model=List[schema.Allacquisition])
+def get_acquisitions(id: int, db: Session = Depends(get_db)):
+    acquisitions = db.query(models.Acquisition).filter(models.Acquisition.patient_id == id).all()
     return acquisitions
 
 #delete an acquisition with the given id
-@router.delete("/acquisitions/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_acquisition(id: int, db: Session = Depends(get_db)):
 
     acquisition = db.query(models.Acquisition).filter(models.Acquisition.id == id)
