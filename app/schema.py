@@ -26,3 +26,13 @@ class Acquisition(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Allacquisition(BaseModel):
+    eye: str
+    site_name:str
+    date_taken: str
+    operator_name: str
+
+    class Config:
+        orm_mode = True

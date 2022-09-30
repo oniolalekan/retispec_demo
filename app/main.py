@@ -46,6 +46,17 @@ def get_patient(id: int, db: Session = Depends(get_db)):
 
     return patient
 
+#get a patient by the first name and last name
+@app.get("/patients/", response_model=schema.Patient)
+def get_patient(fname: str, lname: str, db: Session = Depends(get_db)):
+
+    patient = db.query(models.Patient).filter(models.Patient.first_name.like(fname), models.Patient.last_name.like(lname)).first()
+
+    if not patient:
+        raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"patient with the firstname: {fname}, and lastname: {lname} was not found")
+
+    return patient
+
 
 #delete a patient with the given id
 @app.delete("/patients/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -108,6 +119,13 @@ async def create_file(file: UploadFile = File(), eye: str = Form(), site_name: s
     db.refresh(new_acquisition)
 
     return new_acquisition
+
+
+#get all patients
+@app.get("/acquisitions", response_model=List[schema.Allacquisition])
+def get_acquisitions(db: Session = Depends(get_db)):
+    acquisitions = db.query(models.Acquisition).all()
+    return acquisitions
 
 
 
