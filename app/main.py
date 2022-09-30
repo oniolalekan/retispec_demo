@@ -121,11 +121,24 @@ async def create_file(file: UploadFile = File(), eye: str = Form(), site_name: s
     return new_acquisition
 
 
-#get all patients
+#get all acquisitions
 @app.get("/acquisitions", response_model=List[schema.Allacquisition])
 def get_acquisitions(db: Session = Depends(get_db)):
     acquisitions = db.query(models.Acquisition).all()
     return acquisitions
+
+#delete an acquisition with the given id
+@app.delete("/acquisitions/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_acquisition(id: int, db: Session = Depends(get_db)):
+
+    acquisition = db.query(models.Acquisition).filter(models.Acquisition.id == id)
+    
+    if acquisition.first() == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"acquisition with the id: {id} does not exist")
+
+    acquisition.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 
