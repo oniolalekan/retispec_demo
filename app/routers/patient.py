@@ -13,24 +13,6 @@ router = APIRouter(
     tags=['Patients']
 )
 
-#get all patients
-@router.get("/", response_model=List[schema.Patient])
-def get_patients(db: Session = Depends(get_db)):
-    patients = db.query(models.Patient).all()
-    return patients
-
-#Create a new patient
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema.Patient)
-def create_patients(patient: schema.PatientCreate, db: Session = Depends(get_db)):
-    patient.birth_date = datetime.strptime(patient.birth_date, '%m-%d-%Y').date()
-    new_patient = models.Patient(**patient.dict())
-    db.add(new_patient)
-    db.commit()
-    db.refresh(new_patient)
-
-    return new_patient
-
-#get a patient with the given id
 @router.get("/{id}", response_model=schema.Patient)
 def get_patient(id: int, db: Session = Depends(get_db)):
 

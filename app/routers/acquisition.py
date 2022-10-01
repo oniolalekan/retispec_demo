@@ -1,3 +1,4 @@
+from tkinter import image_names
 from typing import List
 from fastapi import Response, status, HTTPException, Depends, File, UploadFile, Form, APIRouter
 from sqlalchemy.orm import Session
@@ -5,6 +6,7 @@ from .. import models, schema
 from ..database import get_db
 import secrets
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from PIL import Image
 
 
@@ -16,7 +18,7 @@ router = APIRouter(
 
 router.mount("/static", StaticFiles(directory="static"), name="static")
 
-#Create a new acquisition
+#Add a new acquisition for a patient
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema.Acquisition)
 async def create_acquisition(file: UploadFile = File(), eye: str = Form(), site_name: str = Form(), date_taken: str = Form(), operator_name: str = Form(), patient_id: int = Form(), db: Session = Depends(get_db)):
     
@@ -59,6 +61,8 @@ def get_acquisitions(id: int, db: Session = Depends(get_db)):
 def delete_acquisition(id: int, db: Session = Depends(get_db)):
 
     acquisition = db.query(models.Acquisition).filter(models.Acquisition.id == id)
+
+    
     
     if acquisition.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"acquisition with the id: {id} does not exist")
@@ -66,3 +70,15 @@ def delete_acquisition(id: int, db: Session = Depends(get_db)):
     acquisition.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+#download an image (by acquisition id)
+@router.get("/download/{id}")
+def download_acquisition_image(id: int, db: Session = Depends(get_db)):
+
+    FILEPATH = "./static/images/"
+    acquisition_row = db.query(models.Acquisition).filter(models.Acquisition.id == id).first()
+    image_name = vars(acquisition_row)["image_data"]
+
+    image_path = FILEPATH + image_name
+    return FileResponse(path=image_path, filename=image_path)
