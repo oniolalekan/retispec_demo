@@ -24,7 +24,7 @@ class Acquisition(BaseModel):
     date_taken: str
     operator_name: str
     image_data: str
-    patient_id: int
+    patient: Patient
 
     class Config:
         orm_mode = True
@@ -35,7 +35,7 @@ class Allacquisition(BaseModel):
     site_name:str
     date_taken: str
     operator_name: str
-    patient_id: int
+    patient: Patient
 
     class Config:
         orm_mode = True
