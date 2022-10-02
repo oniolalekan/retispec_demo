@@ -1,7 +1,7 @@
 from datetime import datetime
 from fastapi import Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from ..database import get_db
 from .. import schema, models
 
@@ -25,9 +25,9 @@ def get_patient(id: int, db: Session = Depends(get_db)):
 
 #get a patient by the first name and last name
 @router.get("/{first_name}/{last_name}", response_model=schema.Patient)
-def get_patient(fname: str, lname: str, db: Session = Depends(get_db)):
+def get_patient(fname: Optional[str] = "", lname: Optional[str] = "", db: Session = Depends(get_db)):
 
-    patient = db.query(models.Patient).filter(models.Patient.first_name.like(fname), models.Patient.last_name.like(lname)).first()
+    patient = db.query(models.Patient).filter(models.Patient.first_name.contains(fname), models.Patient.last_name.contains(lname)).first()
 
     if not patient:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail=f"patient with the firstname: {fname}, and lastname: {lname} was not found")
