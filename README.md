@@ -28,14 +28,14 @@ Right-click on the item Servers, select Create -> Server and provide the connect
 
 Right-click on the item Databases, select Create -> Database. Use "postgres" as the Database name. Set owner to the default user (postgres) in the step above and click Save afterwards.
 
-# Setup the Environment Variables
+# Step IV: Setup the Environment Variables
 DATABASE_HOSTNAME=localhost
 DATABASE_PORT=5432
 DATABASE_PASSWORD={the database password in step III}
 DATABASE_NAME=postgres
 DATABASE_USERNAME=postgres
 
-# Run the local server with:
+# Step V: Run the local server with:
 uvicorn app.main:app --reload
 This will first create the database schema using the SQLAlchemy ORM and then start the service.
 
