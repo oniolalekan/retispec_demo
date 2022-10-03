@@ -40,6 +40,8 @@ uvicorn app.main:app --reload
 This will first create the database schema using the SQLAlchemy ORM and then start the service.
 
 Copy the URL the service is running on and paste it in your browser: http://127.0.0.1:8000
+The endpoints can be tested with Swagger UI: http://127.0.0.1:8000/docs
+Swagger UI allows anyone — be it your development team or your end consumers — to visualize and interact with the API’s resources without having any of the implementation logic in place.
 
 
 
