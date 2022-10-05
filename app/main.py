@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(patient.router)
-app.include_router(acquisition .router)
+app.include_router(acquisition.router)
 
 
 

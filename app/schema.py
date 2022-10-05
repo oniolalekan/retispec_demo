@@ -10,7 +10,9 @@ class PatientBase(BaseModel):
     sex: str
 
 class PatientCreate(PatientBase):
-    pass
+    
+    class Config:
+        orm_mode = True
 
 class Patient(PatientBase):
     

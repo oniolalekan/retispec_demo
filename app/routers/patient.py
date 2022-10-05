@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 from fastapi import Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from ..database import get_db
+#from app.models import Patient
 from .. import schema, models
 
 
@@ -12,6 +13,18 @@ router = APIRouter(
     prefix="/patients",
     tags=['Patients']
 )
+
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema.Patient)
+def create_patient(lname: str, fname: str, bdate: date, sex: str, db: Session = Depends(get_db)):
+    
+    new_patient = models.Patient(last_name=lname, first_name=fname, birth_date=bdate, sex=sex)
+        
+    db.add(new_patient)
+    db.commit()
+    db.refresh(new_patient)
+
+    return new_patient
+
 
 @router.get("/{id}", response_model=schema.Patient)
 def get_patient(id: int, db: Session = Depends(get_db)):
